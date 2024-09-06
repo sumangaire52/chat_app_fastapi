@@ -8,8 +8,6 @@ repos:
       - id: trailing-whitespace
       - id: end-of-file-fixer
       - id: check-yaml
-      - id: requirements-txt-fixer
-        args: ["requirements/local.txt", "requirements/production.txt"]
 
   - repo: https://github.com/codespell-project/codespell
     rev: v2.2.4
