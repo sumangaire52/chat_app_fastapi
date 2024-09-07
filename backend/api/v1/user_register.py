@@ -4,7 +4,7 @@ from fastapi import APIRouter, HTTPException
 from models import User, UserLogin
 from utils import hash_password
 
-router = APIRouter(prefix=prefix, tags=["User register"])
+router = APIRouter(prefix=prefix, tags=["User"])
 
 
 @router.post("/register")
