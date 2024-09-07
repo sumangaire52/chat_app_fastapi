@@ -3,7 +3,7 @@ import contextlib
 import json
 from typing import List, Tuple
 
-from db_connection import SessionLocal
+from db_connection import SessionLocal, get_db
 from fastapi import APIRouter, Depends, Query, WebSocket, WebSocketDisconnect
 from fastapi_jwt_auth import AuthJWT
 from models import Message, User
@@ -13,14 +13,6 @@ router = APIRouter()
 active_connections: List[Tuple[str, WebSocket]] = []
 
 lock = asyncio.Lock()
-
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 @router.websocket("/ws/chat")
