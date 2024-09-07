@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getMessages } from '../api/auth';
+import { getMessages, deleteAllMessages } from '../api/auth';  // Ensure you add deleteAllMessages to your API module
 
 const ChatBox = ({ token }) => {
   const [socket, setSocket] = useState(null);
@@ -61,14 +61,24 @@ const ChatBox = ({ token }) => {
 
   const sendMessage = () => {
     if (socket && message.trim()) {
-      socket.send(message);  // Ensure the format matches backend expectations
+      socket.send(message);  // Send message as a plain text
       setMessage('');
+    }
+  };
+
+  const handleDeleteAllMessages = async () => {
+    try {
+      await deleteAllMessages(token);
+      setChatHistory([]);  // Clear the chat history
+    } catch (error) {
+      console.error('Failed to delete messages:', error);
     }
   };
 
   return (
     <div>
       <h2>Chat</h2>
+      <button onClick={handleDeleteAllMessages}>Delete All Messages</button>
       <div>
         {chatHistory.map((msg, index) => (
           <div key={index}>

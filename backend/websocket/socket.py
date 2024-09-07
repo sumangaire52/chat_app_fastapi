@@ -1,4 +1,5 @@
 import asyncio
+import contextlib
 import json
 from typing import List, Tuple
 
@@ -33,7 +34,8 @@ async def chat(
         await websocket.accept()
 
         async with lock:
-            if (username, websocket) not in active_connections:
+            if not any(conn[0] == username for conn in active_connections):
+                print(f"{username} connected")
                 active_connections.append((username, websocket))
 
     except Exception as e:
@@ -58,10 +60,12 @@ async def chat(
 
     except WebSocketDisconnect:
         async with lock:
-            active_connections.remove((username, websocket))
+            with contextlib.suppress(ValueError):
+                active_connections.remove((username, websocket))
 
     except Exception as e:
         async with lock:
-            active_connections.remove((username, websocket))
+            with contextlib.suppress(ValueError):
+                active_connections.remove((username, websocket))
         await websocket.close()
         return {"error": f"Error occurred for {username}: {e}"}

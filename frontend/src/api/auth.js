@@ -22,3 +22,9 @@ export const searchMessages = async (token, query) => {
     params: { query },
   });
 };
+
+export const deleteAllMessages = async (token) => {
+  return await axios.delete(`${API_URL}/messages`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+};
