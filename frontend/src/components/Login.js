@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom'; // Import useNavigate for redirection
 import { login } from '../api/auth';
+import './Login.css';  // Import the CSS file for styling
 
 const Login = ({ setToken }) => {
   const [username, setUsername] = useState('');
@@ -23,27 +24,29 @@ const Login = ({ setToken }) => {
   };
 
   return (
-    <div>
-      <h2>Login</h2>
-      <form onSubmit={handleLogin}>
+    <div className="login-container">
+      <h2 className="login-title">Login</h2>
+      <form onSubmit={handleLogin} className="login-form">
         <input
           type="text"
           placeholder="Username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
+          className="login-input"
         />
         <input
           type="password"
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          className="login-input"
         />
-        <button type="submit">Login</button>
+        <button type="submit" className="login-button">Login</button>
       </form>
-      {message && <p>{message}</p>}
+      {message && <p className="login-message">{message}</p>}
 
       {/* Link to the Register page */}
-      <p>
+      <p className="register-link">
         Don't have an account? <Link to="/register">Register here</Link>.
       </p>
     </div>
