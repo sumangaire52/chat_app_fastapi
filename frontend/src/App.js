@@ -16,22 +16,14 @@ function App() {
           <Route path="/" element={<Login setToken={setToken} />} />
           <Route path="/register" element={<Register />} />
 
-          {/* Conditionally render chat and search only if the user is authenticated */}
-          {token && (
-            <>
-              <Route path="/chat" element={<ChatBox token={token} />} />
-              <Route path="/search" element={<SearchMessages token={token} />} />
-            </>
-          )}
-
-          {/* If user tries to access /chat or /search without a token, redirect to login */}
+          {/* Redirect to login if not authenticated */}
           <Route
             path="/chat"
-            element={!token ? <Navigate to="/" replace /> : <ChatBox token={token} />}
+            element={token ? <ChatBox token={token} /> : <Navigate to="/" replace />}
           />
           <Route
             path="/search"
-            element={!token ? <Navigate to="/" replace /> : <SearchMessages token={token} />}
+            element={token ? <SearchMessages token={token} /> : <Navigate to="/" replace />}
           />
         </Routes>
       </div>

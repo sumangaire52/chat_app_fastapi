@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { io } from 'socket.io-client';
 import { getMessages } from '../api/auth';
 
 const ChatBox = ({ token }) => {
@@ -8,40 +7,63 @@ const ChatBox = ({ token }) => {
   const [chatHistory, setChatHistory] = useState([]);
 
   useEffect(() => {
-    const socket = io('ws://localhost:8000/ws/chat', {
-      auth: { token },
-    });
+    const createWebSocket = () => {
+      const ws = new WebSocket(`ws://localhost:8000/ws/chat?token=${token}`);
 
-    socket.on('connect', () => {
-      console.log('Connected to WebSocket');
-    });
+      ws.onopen = () => {
+        console.log('Connected to WebSocket');
+      };
 
-    socket.on('disconnect', () => {
-      console.log('Disconnected from WebSocket');
-    });
+      ws.onmessage = (event) => {
+        try {
+          // Try parsing the message data as JSON
+          const newMessage = JSON.parse(event.data);
+          console.log('Received message:', newMessage);  // Log received message
+          setChatHistory((prev) => [...prev, newMessage]);
+        } catch (error) {
+          // Handle errors for non-JSON data
+          console.error('Failed to parse message as JSON:', event.data);
+        }
+      };
 
-    socket.on('message', (msg) => {
-      setChatHistory((prev) => [...prev, msg]);
-    });
+      ws.onclose = () => {
+        console.log('WebSocket closed. Reconnecting...');
+        setTimeout(createWebSocket, 5000);
+      };
 
-    setSocket(socket);
+      ws.onerror = (error) => {
+        console.error('WebSocket error:', error);
+      };
 
-    // Fetch past messages
+      setSocket(ws);
+    };
+
+    createWebSocket();
+
     const fetchMessages = async () => {
-      const response = await getMessages(token);
-      setChatHistory(response.data);
+      try {
+        const response = await getMessages(token);
+        console.log('Fetched messages:', response.data);  // Log fetched messages
+        setChatHistory(response.data);
+      } catch (error) {
+        console.error('Failed to fetch messages:', error);
+      }
     };
 
     fetchMessages();
 
     return () => {
-      socket.disconnect();
+      if (socket) {
+        socket.close();
+      }
     };
   }, [token]);
 
   const sendMessage = () => {
-    socket.emit('message', message);
-    setMessage('');
+    if (socket && message.trim()) {
+      socket.send(message);  // Ensure the format matches backend expectations
+      setMessage('');
+    }
   };
 
   return (
@@ -49,13 +71,16 @@ const ChatBox = ({ token }) => {
       <h2>Chat</h2>
       <div>
         {chatHistory.map((msg, index) => (
-          <div key={index}>{msg}</div>
+          <div key={index}>
+            <p><strong>{msg.username}:</strong> {msg.content}</p>
+          </div>
         ))}
       </div>
       <input
         type="text"
         value={message}
         onChange={(e) => setMessage(e.target.value)}
+        placeholder="Type your message..."
       />
       <button onClick={sendMessage}>Send</button>
     </div>
