@@ -1,6 +1,8 @@
 services:
   backend:
-    build: backend/
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     ports:
       - "8000:8000"
     environment:
@@ -14,9 +16,11 @@ services:
     command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
   frontend:
-    build: frontend/
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - "3000:80"
     depends_on:
       - backend
     volumes:
