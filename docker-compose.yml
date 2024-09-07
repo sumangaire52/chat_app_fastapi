@@ -1,16 +1,17 @@
-version: '3.8'
-
 services:
   backend:
     build: backend/
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=postgresql://postgres:password@db/chatapp
+      - DATABASE_URL=postgresql+psycopg2://postgres:password@db/chatapp
+      - JWT_SECRET_KEY=53888986802ff38cc210a469f79edb69500d9152ecd36888abddbbec42219079
     depends_on:
       - db
     volumes:
-      - .:/app
+      - ./backend:/app
+    working_dir: /app
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
 
   db:
     image: postgres:13
