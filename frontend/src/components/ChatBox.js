@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { getMessages, deleteAllMessages } from '../api/auth';  // Ensure you add deleteAllMessages to your API module
+import { getMessages, searchMessages, deleteAllMessages } from '../api/auth';
 
 const ChatBox = ({ token }) => {
   const [socket, setSocket] = useState(null);
   const [message, setMessage] = useState('');
   const [chatHistory, setChatHistory] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredMessages, setFilteredMessages] = useState([]);
 
   useEffect(() => {
     const createWebSocket = () => {
@@ -16,12 +18,10 @@ const ChatBox = ({ token }) => {
 
       ws.onmessage = (event) => {
         try {
-          // Try parsing the message data as JSON
           const newMessage = JSON.parse(event.data);
-          console.log('Received message:', newMessage);  // Log received message
+          console.log('Received message:', newMessage);
           setChatHistory((prev) => [...prev, newMessage]);
         } catch (error) {
-          // Handle errors for non-JSON data
           console.error('Failed to parse message as JSON:', event.data);
         }
       };
@@ -43,7 +43,7 @@ const ChatBox = ({ token }) => {
     const fetchMessages = async () => {
       try {
         const response = await getMessages(token);
-        console.log('Fetched messages:', response.data);  // Log fetched messages
+        console.log('Fetched messages:', response.data);
         setChatHistory(response.data);
       } catch (error) {
         console.error('Failed to fetch messages:', error);
@@ -59,9 +59,27 @@ const ChatBox = ({ token }) => {
     };
   }, [token]);
 
+  useEffect(() => {
+    const fetchFilteredMessages = async () => {
+      if (searchQuery.trim()) {
+        try {
+          const response = await searchMessages(token, searchQuery);
+          console.log('Search results:', response.data);
+          setFilteredMessages(response.data);
+        } catch (error) {
+          console.error('Failed to search messages:', error);
+        }
+      } else {
+        setFilteredMessages([]);
+      }
+    };
+
+    fetchFilteredMessages();
+  }, [searchQuery, token]);
+
   const sendMessage = () => {
     if (socket && message.trim()) {
-      socket.send(message);  // Send message as a plain text
+      socket.send(message);
       setMessage('');
     }
   };
@@ -79,8 +97,14 @@ const ChatBox = ({ token }) => {
     <div>
       <h2>Chat</h2>
       <button onClick={handleDeleteAllMessages}>Delete All Messages</button>
+      <input
+        type="text"
+        placeholder="Search messages..."
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+      />
       <div>
-        {chatHistory.map((msg, index) => (
+        {(searchQuery.trim() ? filteredMessages : chatHistory).map((msg, index) => (
           <div key={index}>
             <p><strong>{msg.username}:</strong> {msg.content}</p>
           </div>
