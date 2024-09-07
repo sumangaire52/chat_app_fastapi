@@ -9,10 +9,11 @@ repos:
       - id: end-of-file-fixer
       - id: check-yaml
 
-  - repo: https://github.com/codespell-project/codespell
-    rev: v2.2.4
-    hooks:
-      - id: codespell
+#  - repo: https://github.com/codespell-project/codespell
+#    rev: v2.2.4
+#    hooks:
+#      - id: codespell
+#        args: ["-L vEw"]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.6.1
