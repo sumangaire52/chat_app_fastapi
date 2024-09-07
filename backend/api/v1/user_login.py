@@ -5,7 +5,7 @@ from fastapi_jwt_auth import AuthJWT
 from models import User, UserLogin
 from utils import verify_password
 
-router = APIRouter(prefix=prefix, tags=["User register"])
+router = APIRouter(prefix=prefix, tags=["User"])
 
 
 @router.post("/login")
